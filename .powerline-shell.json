@@ -5,10 +5,10 @@
     "hostname",
     "ssh",
     "cwd",
+    "newline",
     "git",
     "hg",
     "jobs",
-    "newline",
     "root",
     "read_only"
   ],
