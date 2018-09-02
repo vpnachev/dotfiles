@@ -1,6 +1,6 @@
-alias less="less -N"
 export GOPATH="${HOME}/go"
 export PATH="/sbin:/usr/sbin:/usr/local/sbin:${PATH}:${GOPATH}/bin"
+export Videos="/var/lib/Videos"
 
 #                      29  for black, 31 red
 #export PS1="\[\033[01;31m\]\[$(ppwd)\]\u@\h:\w\[\033[0m\]\n> "
@@ -16,5 +16,14 @@ if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
 fi
 
 ## powerline END
+source <(minikube completion bash)
+source <(kubectl completion bash)
+source <(helm completion bash)
+
 alias xpaste="xclip -sel col -o"
 alias xcopy="xclip -sel col"
+alias temperature="sensors | grep '^Core.*?°C' -P"
+alias цд="cd"
+alias лс="ls"
+alias лл="ll"
+alias пвд="pwd"
