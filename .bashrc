@@ -1,6 +1,7 @@
 export GOPATH="${HOME}/go"
 export PATH="/sbin:/usr/sbin:/usr/local/sbin:${PATH}:${GOPATH}/bin"
 export Videos="/var/lib/Videos"
+export LANG=en_US.UTF-8
 
 #                      29  for black, 31 red
 #export PS1="\[\033[01;31m\]\[$(ppwd)\]\u@\h:\w\[\033[0m\]\n> "
@@ -30,25 +31,25 @@ GARDENCTL_V=$(gardenctl version | awk "NR==2" | grep -o "[0-9].*[0-9]")
 
 if [[ x${KUBECTL_VERSION}x != x${KUBECTL_V}x ]]
 then
-    sed -i "s/^KUBECTL_VERSION=$KUBECTL_VERSION$/KUBECTL_VERSION=$KUBECTL_V/g" $HOME/.bashrc.custom
+    sed -i "s/^KUBECTL_VERSION=$KUBECTL_VERSION$/KUBECTL_VERSION=$KUBECTL_V/g" $HOME/.bashrc.local
     kubectl completion bash >$HOME/.completion.d/kubectl
 fi
 
 if [[ x${MINIKUBE_VERSION}x != x${MINIKUBE_V}x ]]
 then
-    sed -i "s/^MINIKUBE_VERSION=$MINIKUBE_VERSION$/MINIKUBE_VERSION=$MINIKUBE_V/g" $HOME/.bashrc.custom
+    sed -i "s/^MINIKUBE_VERSION=$MINIKUBE_VERSION$/MINIKUBE_VERSION=$MINIKUBE_V/g" $HOME/.bashrc.local
     minikube completion bash >$HOME/.completion.d/minikube
 fi
 
 if [[ x${HELM_VERSION}x != x${HELM_V}x ]]
 then
-    sed -i "s/^HELM_VERSION=$HELM_VERSION$/HELM_VERSION=$HELM_V/g" $HOME/.bashrc.custom
+    sed -i "s/^HELM_VERSION=$HELM_VERSION$/HELM_VERSION=$HELM_V/g" $HOME/.bashrc.local
     helm completion bash >$HOME/.completion.d/helm
 fi
 
 if [[ x${GARDENCTL_VERSION}x != x${GARDENCTL_V}x ]]
 then
-    sed -i "s/^GARDENCTL_VERSION=$GARDENCTL_VERSION$/GARDENCTL_VERSION=$GARDENCTL_V/g" $HOME/.bashrc.custom
+    sed -i "s/^GARDENCTL_VERSION=$GARDENCTL_VERSION$/GARDENCTL_VERSION=$GARDENCTL_V/g" $HOME/.bashrc.local
     cd $HOME
     gardenctl completion
     mv gardenctl_completion.sh $HOME/.completion.d/gardenctl
