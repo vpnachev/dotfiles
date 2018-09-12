@@ -27,7 +27,7 @@ GARDENCTL_VERSION=
 KUBECTL_V=$(kubectl version --client --short | grep -o "v[0-9].*[0-9]")
 MINIKUBE_V=$(minikube version | grep -o "v[0-9].*[0-9]")
 HELM_V=$(helm version --client --short | grep -o "v[0-9].*[0-9]")
-GARDENCTL_V=$(gardenctl version | awk "NR==2" | grep -o "[0-9].*[0-9]")
+GARDENCTL_V=$(gardenctl version | grep version | awk "NR==1" | grep -o "[0-9].*[0-9]")
 
 if [[ x${KUBECTL_VERSION}x != x${KUBECTL_V}x ]]
 then
