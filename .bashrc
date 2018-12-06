@@ -1,5 +1,6 @@
+export GOROOT="/usr/local/go"
 export GOPATH="${HOME}/go"
-export PATH="/sbin:/usr/sbin:/usr/local/sbin:${PATH}:${GOPATH}/bin"
+export PATH="/sbin:/usr/sbin:/usr/local/sbin:${PATH}:${GOPATH}/bin:${GOROOT}/bin"
 export Videos="/var/lib/Videos"
 export LANG=en_US.UTF-8
 
@@ -9,6 +10,14 @@ export LANG=en_US.UTF-8
 
 ## powerline-shell https://github.com/b-ryan/powerline-shell
 function _update_ps1() {
+    export KUBE_PS_CONTEXT="$(kubectl config current-context 2>/dev/null)"
+    KUBE_PS_NAMESPACE="$(kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null)"
+    KUBE_PS_NAMESPACE="${KUBE_PS_NAMESPACE:-default}"
+    if [[ $KUBE_PS_CONTEXT == "" ]]
+    then
+        KUBE_PS_NAMESPACE=""
+    fi
+    export KUBE_PS_NAMESPACE
     PS1=$(powerline-shell $?)
 }
 
@@ -27,7 +36,7 @@ GARDENCTL_VERSION=
 KUBECTL_V=$(kubectl version --client --short | grep -o "v[0-9].*[0-9]")
 MINIKUBE_V=$(minikube version | grep -o "v[0-9].*[0-9]")
 HELM_V=$(helm version --client --short | grep -o "v[0-9].*[0-9]")
-GARDENCTL_V=$(gardenctl version | grep version | awk "NR==1" | grep -o "[0-9].*[0-9]")
+GARDENCTL_V=$(gardenctl version | awk "NR==2" | grep -o "[0-9].*[0-9]")
 
 if [[ x${KUBECTL_VERSION}x != x${KUBECTL_V}x ]]
 then

@@ -3,6 +3,20 @@
     "virtual_env",
     "username",
     "hostname",
+    {
+      "type": "~/Documents/git/vpnachev/dotfiles/optionall.py",
+      "var": "KUBE_PS_CONTEXT",
+      "fg_color": 1,
+      "bg_color": 0,
+      "skip_undefined": 1
+    },
+    {
+      "type": "~/Documents/git/vpnachev/dotfiles/optionall.py",
+      "var": "KUBE_PS_NAMESPACE",
+      "fg_color": 44,
+      "bg_color": 0,
+      "skip_undefined": 1
+    },
     "ssh",
     "cwd",
     "newline",
