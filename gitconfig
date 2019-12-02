@@ -1,0 +1,19 @@
+[user]
+    name = <User Name>
+    email = <mail>
+	signingkey = <gpg-sign-key-id>
+[http]
+    sslVerify = false
+[alias]
+    logtree = log  --decorate --graph --all --color --oneline
+	afetch = fetch --all --verbose
+[core]
+    editor = vim
+[pull]
+	rebase = true
+[gpg]
+	program = gpg2
+[commit]
+    gpgSign = true
+[push]
+	default = simple

@@ -1,7 +1,7 @@
 " /etc/vimrc (configuration file for vim only)
 " author: Klaus Franken     <kfr@suse.de>
-" author: Werner Fink       <werner@suse.de> 
-" author: Florian La Roche  <florian@suse.de> 
+" author: Werner Fink       <werner@suse.de>
+" author: Florian La Roche  <florian@suse.de>
 " version: 2017/04/28
 " commented lines start with `"'
 
@@ -31,7 +31,7 @@ function! SKEL_spec()
         if newline != -1
             let hostname = strpart(hostname, 0, newline)
         endif
-        exe "%s/specCURRENT_YEAR/" . strftime("%Y") . "/ge" 
+        exe "%s/specCURRENT_YEAR/" . strftime("%Y") . "/ge"
         exe "%s/specRPM_CREATION_DATE/" . strftime("%a\ %b\ %d\ %Y") . "/ge"
         exe "%s/specRPM_CREATION_AUTHOR_MAIL/" . login . "@" . hostname . "/ge"
         exe "%s/specRPM_CREATION_NAME/" . expand("%:t:r") . "/ge"
@@ -63,11 +63,11 @@ set showmode
 set esckeys
 
 " get easier to use and more user friendly vim defaults
-" CAUTION: This option breaks some vi compatibility. 
+" CAUTION: This option breaks some vi compatibility.
 "          Switch it off if you prefer real vi compatibility
 set nocompatible
 
-" allow backspacing over everything in insert mode 
+" allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
 " Complete longest common string, then each full match
@@ -98,7 +98,7 @@ if myterm == "xterm" || myterm == "kvt" || myterm == "gnome"
     map! <ESC>Om  -
     map! <ESC>Ok  +
     map! <ESC>Ol  ,
-    map! <ESC>OM  
+    map! <ESC>OM
     map! <ESC>Ow  7
     map! <ESC>Ox  8
     map! <ESC>Oy  9
@@ -116,7 +116,7 @@ if myterm == "xterm" || myterm == "kvt" || myterm == "gnome"
     map! <Char-0x8F>m  -
     map! <Char-0x8F>k  +
     map! <Char-0x8F>l  ,
-    map! <Char-0x8F>M  
+    map! <Char-0x8F>M
     map! <Char-0x8F>w  7
     map! <Char-0x8F>x  8
     map! <Char-0x8F>y  9
@@ -134,7 +134,7 @@ if myterm == "xterm" || myterm == "kvt" || myterm == "gnome"
     map <ESC>Om  -
     map <ESC>Ok  +
     map <ESC>Ol  ,
-    map <ESC>OM  
+    map <ESC>OM
     map <ESC>Ow  7
     map <ESC>Ox  8
     map <ESC>Oy  9
@@ -152,7 +152,7 @@ if myterm == "xterm" || myterm == "kvt" || myterm == "gnome"
     map <Char-0x8F>m  -
     map <Char-0x8F>k  +
     map <Char-0x8F>l  ,
-    map <Char-0x8F>M  
+    map <Char-0x8F>M
     map <Char-0x8F>w  7
     map <Char-0x8F>x  8
     map <Char-0x8F>y  9
@@ -360,9 +360,14 @@ set expandtab
 set nu
 set visualbell
 set hlsearch
-" colorscheme delek 
+set ic
+" colorscheme delek
+" colorscheme slate
+colorscheme elflord
 " colorscheme peachpuff murphy
+"colorscheme torte
 let skip_defaults_vim=""
+set synmaxcol=240
 
 " Copy of parts of /usr/share/vim/**/defaults.vim
 "
@@ -391,7 +396,7 @@ set ttimeout		" time out for key codes
 set ttimeoutlen=100	" wait up to 100ms after Esc for special key
 
 " Show @@@ in the last line if it is truncated.
-set display=truncate
+" set display=truncate
 
 " Show a few lines of context around the cursor.  Note that this makes the
 " text scroll if you mouse-click near the start or end of the window.

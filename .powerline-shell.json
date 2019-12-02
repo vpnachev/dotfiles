@@ -1,8 +1,6 @@
 {
   "segments": [
     "virtual_env",
-    "username",
-    "hostname",
     {
       "type": "~/Documents/git/vpnachev/dotfiles/optionall.py",
       "var": "KUBE_PS_CONTEXT",
@@ -23,8 +21,8 @@
     "git",
     "hg",
     "jobs",
-    "root",
-    "read_only"
+    "read_only",
+    "root"
   ],
   "mode": "compatible",
   "cwd": {
