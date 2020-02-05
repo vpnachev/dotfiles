@@ -6,7 +6,7 @@
     sslVerify = false
 [alias]
     logtree = log  --decorate --graph --all --color --oneline
-	afetch = fetch --all --verbose
+	afetch = fetch --all --verbose --prune --recurse-submodules=on-demand --tags
 [core]
     editor = vim
 [pull]
