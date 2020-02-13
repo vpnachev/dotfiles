@@ -83,7 +83,7 @@ function gardenctl() {
     local _GARDENCTL=$(which gardenctl)
     if [[ x$1x == xtargetx && $2 =~ (garden|seed|shoot) ]]
     then
-        _OUTPUT_=$(${_GARDENCTL} $@) && export $_OUTPUT_
+        _OUTPUT_=$(${_GARDENCTL} $@ | grep KUBECONFIG) && export $_OUTPUT_
         unset _OUTPUT_
     else
         ${_GARDENCTL} $@
