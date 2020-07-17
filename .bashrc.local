@@ -96,6 +96,7 @@ alias xcopy="xclip -sel col"
 alias temperature="sensors|grep '^Core.*?°C' -P"
 alias k='kubectl'
 alias ks='kubectl -n kube-system '
+alias kall='kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found  -n '
 alias kg='kubectl -n garden '
 alias цд="cd"
 alias лс="ls"
