@@ -6,14 +6,24 @@
     sslVerify = false
 [alias]
     logtree = log  --decorate --graph --all --color --oneline
-	afetch = fetch --all --verbose --prune --recurse-submodules=on-demand --tags
+    logo = log --oneline  --decorate --graph --color
+    afetch = fetch --all --verbose --prune
+    aafetch = fetch --all --verbose --prune --recurse-submodules=on-demand --tags
+    pr = "!f() { git fetch origin refs/pull/\"$1\"/head ; git checkout FETCH_HEAD ; }; f"
+    pipeline = "!f() { git fetch origin refs/meta/ci ; git checkout FETCH_HEAD ; }; f"
+    reflog-date = reflog --date=relative
+    reflog-pretty = reflog --pretty=short --date=relative
 [core]
     editor = vim
 [pull]
-	rebase = true
+    rebase = true
 [gpg]
-	program = gpg2
+    program = gpg2
 [commit]
     gpgSign = true
 [push]
-	default = simple
+    default = simple
+
+
+#[hub]
+#	protocol = git
