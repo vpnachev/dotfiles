@@ -4,7 +4,7 @@
     {
       "type": "~/Documents/git/vpnachev/dotfiles/optionall.py",
       "var": "KUBE_PS_CONTEXT",
-      "fg_color": 1,
+      "fg_color": 7,
       "bg_color": 0,
       "skip_undefined": 1
     },
