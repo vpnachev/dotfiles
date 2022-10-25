@@ -1,9 +1,12 @@
-export GOROOT="/usr/local/go"
+GOROOT="/usr/local/go"
 export GOPATH="${HOME}/go"
 export PATH="/sbin:/usr/sbin:/usr/local/sbin:${PATH}:${GOPATH}/bin:${GOROOT}/bin"
 export Videos="/var/lib/Videos"
 export LANG=en_US.UTF-8
 export DOCKER_BUILDKIT=1
+
+# Enable the recommended auth mechanism for GKE kubeconfigs: https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
 
 # k8s.io cherry-pick env
 export GITHUB_USER=vpnachev
@@ -18,7 +21,7 @@ export FORK_REMOTE=vpnachev
 function _update_ps1() {
     local ext_code=$?
     export KUBE_PS_CONTEXT="$(kubectl config current-context 2>/dev/null)"
-    KUBE_PS_NAMESPACE="$(kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null)"
+    KUBE_PS_NAMESPACE="$(kubectl config view --minify --output jsonpath="{.contexts[?(@.name == \"$KUBE_PS_CONTEXT\")].context.namespace}" 2>/dev/null)"
     KUBE_PS_NAMESPACE="${KUBE_PS_NAMESPACE:-default}"
     if [[ $KUBE_PS_CONTEXT == "" ]]
     then
@@ -44,26 +47,19 @@ function _enable_kubectx_prompt() {
 mkdir -p $HOME/.completion.d
 
 KUBECTL_VERSION=
-MINIKUBE_VERSION=
 HELM_VERSION=
-GARDENCTL_VERSION=
 KIND_VERSION=
-KUBECTL_V=$(kubectl version --client --short | grep -o "v[0-9].*[0-9]")
-MINIKUBE_V=$(minikube version | grep -o "v[0-9].*[0-9]")
+COSIGN_VERSION=
+KUBECTL_V=$(kubectl version --client -o json | jq .clientVersion.gitVersion -r)
 HELM_V=$(helm version --client --short | grep -o "v[0-9].*[0-9]")
-GARDENCTL_V=$(gardenctl version | awk "NR==2" | grep -o "[0-9].*[0-9]")
 KIND_V=$(kind version -q)
+COSIGN_V=$(cosign version --json 2>&1 | jq .gitVersion -cr)
 if [[ x${KUBECTL_VERSION}x != x${KUBECTL_V}x ]]
 then
     sed -i "s/^KUBECTL_VERSION=$KUBECTL_VERSION$/KUBECTL_VERSION=$KUBECTL_V/g" $HOME/.bashrc.vpnachev
     kubectl completion bash >$HOME/.completion.d/kubectl
 fi
 
-if [[ x${MINIKUBE_VERSION}x != x${MINIKUBE_V}x ]]
-then
-    sed -i "s/^MINIKUBE_VERSION=$MINIKUBE_VERSION$/MINIKUBE_VERSION=$MINIKUBE_V/g" $HOME/.bashrc.vpnachev
-    minikube completion bash >$HOME/.completion.d/minikube
-fi
 
 if [[ x${HELM_VERSION}x != x${HELM_V}x ]]
 then
@@ -71,13 +67,6 @@ then
     helm completion bash >$HOME/.completion.d/helm
 fi
 
-if [[ x${GARDENCTL_VERSION}x != x${GARDENCTL_V}x ]]
-then
-    sed -i "s/^GARDENCTL_VERSION=$GARDENCTL_VERSION$/GARDENCTL_VERSION=$GARDENCTL_V/g" $HOME/.bashrc.vpnachev
-    cd $HOME
-    gardenctl completion bash > $HOME/.completion.d/gardenctl
-    cd - &>/dev/null
-fi
 
 if [[ x${KIND_VERSION}x != x${KIND_V}x ]]
 then
@@ -85,20 +74,12 @@ then
     kind completion bash >$HOME/.completion.d/kind
 fi
 
-function gardenctl() {
-    local _GARDENCTL=$(which gardenctl)
-    if [[ x$1x == xtargetx && $2 =~ (garden|seed|shoot) ]]
-    then
-        _OUTPUT_=$(${_GARDENCTL} $@ | grep KUBECONFIG) && export $_OUTPUT_
-        unset _OUTPUT_
-    else
-        ${_GARDENCTL} $@
-    fi
-}
+if [[ x${COSIGN_VERSION}x != x${COSIGN_V}x ]]
+then
+    sed -i "s/^COSIGN_VERSION=$COSIGN_VERSION$/COSIGN_VERSION=$COSIGN_V/g" $HOME/.bashrc.vpnachev
+    cosign completion bash >$HOME/.completion.d/cosign
+fi
 
-function vpn_help() {
-    echo "Login to the VPN server, open browser console and run 'document.cookie.match(/MRHSession=(.*?); /)[1]' to get the session id"
-}
 
 
 alias xpaste="xclip -sel col -o"
@@ -115,7 +96,6 @@ alias цд="cd"
 alias лс="ls"
 alias лл="ll"
 alias пвд="pwd"
-alias g='gardenctl'
 alias gk='_gardener_kconfig'
 alias diff='diff --color=always'
 alias watch='watch -d -c '
@@ -125,90 +105,29 @@ alias cdgg="cd $GOPATH/src/github.com/gardener/gardener"
 alias cdgl="cd $HOME/Documents/git/gardenlinux/gardenlinux/"
 alias weather="curl wttr.in"
 
-
 complete -o default -F __start_kubectl k
 complete -o default -F __start_kubectl ks
 complete -o default -F __start_kubectl kg
 complete -o default -F __start_gardenctl g
+complete -C '/usr/local/bin/aws_completer' aws
+complete -C /usr/local/bin/aliyun aliyun
+
 source $HOME/.completion.d/kubectl
-source $HOME/.completion.d/minikube
 source $HOME/.completion.d/helm
-source $HOME/.completion.d/gardenctl
 source $HOME/.completion.d/kind
 source $HOME/.completion.d/kubectx.bash
 source $HOME/.completion.d/kubens.bash
+source $HOME/.completion.d/cosign
 
-complete -C '/usr/local/bin/aws_completer' aws
-complete -C /usr/local/bin/aliyun aliyun
 
 function kconfig {
     export KUBECONFIG=$(readlink -f $1)
 }
-function gardener_kconfig_dev {
-    _gardener_kconfig dev
-}
 
-function gardener_kconfig_staging {
-    _gardener_kconfig staging
-}
 
-function gardener_kconfig_canary {
-    _gardener_kconfig canary
-}
 
-function gardener_kconfig_live {
-    _gardener_kconfig live
-}
 
-function _gardener_kconfig {
-    local kubeconfig=""
-    local landscape
-    if [[ ! -z $1 ]]
-    then
-        landscape="$1"
-        kubeconfig="${HOME}/.garden/${landscape}-kubeconfig.yaml"
-    else
-        landscape=dev
-        for l in dev staging canary live
-        do
-            if [[ -z ${kubeconfig} ]]
-            then
-                _kubeconfig="${HOME}/.garden/${landscape}-kubeconfig.yaml"
-            else
-                _kubeconfig="${kubeconfig}:${HOME}/.garden/${landscape}-kubeconfig.yaml"
-            fi
-        done
-    fi
-
-    export KUBECONFIG=${kubeconfig}
-    export GARDENER_LANDSCAPE=${landscape}
-}
-
-function target_shoot {
-    local namespace=$1
-    local name=$2
-    local landscape=${GARDENER_LANDSCAPE:-nameless}
-    local output_path="/tmp/${landscape}-${namespace}-${name}.kubeconfig"
-    local exit_code
-
-    cat <<EOF | kubectl create -f - --raw "/apis/core.gardener.cloud/v1beta1/namespaces/${namespace}/shoots/${name}/adminkubeconfig" | jq ".status.kubeconfig" -cr | base64 -d > "${output_path}"
-{
-    "apiVersion": "authentication.gardener.cloud/v1alpha1",
-    "kind": "AdminKubeconfigRequest",
-    "spec": {
-        "expirationSeconds": 1800
-    }
-}
-EOF
-
-    local exit_code=${PIPESTATUS[1]} # bash specific env variable, zsh uses pipestatus
-    if [[ ${exit_code} != "0" ]]; then
-        return ${exit_code}
-    fi
-    echo "kconfig ${output_path}"
-}
-
-# credits to mvladev
+# credits for the jwks token decoding: mvladev
 
 decode_base64_url() {
   local len=$((${#1} % 4))
