@@ -112,12 +112,12 @@ complete -o default -F __start_gardenctl g
 complete -C '/usr/local/bin/aws_completer' aws
 complete -C /usr/local/bin/aliyun aliyun
 
-source $HOME/.completion.d/kubectl
-source $HOME/.completion.d/helm
-source $HOME/.completion.d/kind
-source $HOME/.completion.d/kubectx.bash
-source $HOME/.completion.d/kubens.bash
-source $HOME/.completion.d/cosign
+test -s $HOME/.completion.d/kubectl && source $HOME/.completion.d/kubectl
+test -s $HOME/.completion.d/helm && source $HOME/.completion.d/helm
+test -s $HOME/.completion.d/kind && source $HOME/.completion.d/kind
+test -s $HOME/.completion.d/kubectx.bash && source $HOME/.completion.d/kubectx.bash
+test -s $HOME/.completion.d/kubens.bash && source $HOME/.completion.d/kubens.bash
+test -s $HOME/.completion.d/cosign && source $HOME/.completion.d/cosign
 
 
 function kconfig {
