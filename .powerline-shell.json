@@ -17,10 +17,10 @@
     },
     "ssh",
     "cwd",
+    "time",
     "newline",
     "git",
     "hg",
-    "jobs",
     "read_only",
     "root"
   ],

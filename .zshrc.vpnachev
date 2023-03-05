@@ -1,0 +1,186 @@
+GOROOT="/usr/local/go"
+if [ -z $GOPATH ]; then
+    export GOPATH="${HOME}/go"
+fi
+export PATH="/sbin:/usr/sbin:/usr/local/sbin:${PATH}:${GOPATH}/bin:${GOROOT}/bin"
+export Videos="/var/lib/Videos"
+export DOCKER_BUILDKIT=1
+
+# Enable the recommended auth mechanism for GKE kubeconfigs: https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+
+# k8s.io cherry-pick env
+export GITHUB_USER=vpnachev
+export UPSTREAM_REMOTE=origin
+export FORK_REMOTE=vpnachev
+
+### powerline-shell https://github.com/b-ryan/powerline-shell
+#### ZSH powerline intialization
+function powerline_precmd() {
+    local ext_code=$?
+    export KUBE_PS_CONTEXT="$(kubectl config current-context 2>/dev/null)"
+    KUBE_PS_NAMESPACE="$(kubectl config view --minify --output jsonpath="{.contexts[?(@.name == \"$KUBE_PS_CONTEXT\")].context.namespace}" 2>/dev/null)"
+    KUBE_PS_NAMESPACE="${KUBE_PS_NAMESPACE:-default}"
+    if [[ $KUBE_PS_CONTEXT == "" ]]
+    then
+        KUBE_PS_NAMESPACE=""
+    fi
+    export KUBE_PS_NAMESPACE
+
+    PS1="$(powerline-shell --shell zsh $?)"
+}
+
+function install_powerline_precmd() {
+  for s in "${precmd_functions[@]}"; do
+    if [ "$s" = "powerline_precmd" ]; then
+      return
+    fi
+  done
+  precmd_functions+=(powerline_precmd)
+}
+
+if [ "$TERM" != "linux" -a -x "$(command -v powerline-shell)" ]; then
+    install_powerline_precmd
+fi
+
+function _disable_kubectx_prompt() {
+    export KUBECONFIG=/invalid/path/to/kubeconfig
+}
+
+function _enable_kubectx_prompt() {
+    unset KUBECONFIG #return it to default behaviour
+}
+## powerline END
+
+mkdir -p $HOME/.completion.d
+
+KUBECTL_VERSION=$(cat $HOME/.completion.d/kubectl.version)
+HELM_VERSION=$(cat $HOME/.completion.d/helm.version)
+KIND_VERSION=$(cat $HOME/.completion.d/kind.version)
+COSIGN_VERSION=$(cat $HOME/.completion.d/cosign.version)
+KUBECTL_V=$(kubectl version --client -o json | jq .clientVersion.gitVersion -r)
+HELM_V=$(helm version --client --short | grep -o "v[0-9].*[0-9]")
+KIND_V=$(kind version -q)
+COSIGN_V=$(cosign version --json 2>&1 | jq .gitVersion -cr)
+if [[ x${KUBECTL_VERSION}x != x${KUBECTL_V}x ]]
+then
+    echo -n $KUBECTL_V > $HOME/.completion.d/kubectl.version
+    kubectl completion zsh >$HOME/.completion.d/kubectl
+fi
+
+
+if [[ x${HELM_VERSION}x != x${HELM_V}x ]]
+then
+    echo -n $HELM_V > $HOME/.completion.d/helm.version
+    helm completion zsh >$HOME/.completion.d/helm
+fi
+
+
+if [[ x${KIND_VERSION}x != x${KIND_V}x ]]
+then
+    echo -n $KIND_V > $HOME/.completion.d/kind.version
+    kind completion zsh >$HOME/.completion.d/kind
+fi
+
+if [[ x${COSIGN_VERSION}x != x${COSIGN_V}x ]]
+then
+    echo -n $COSIGN_V > $HOME/.completion.d/cosign.version
+    cosign completion zsh >$HOME/.completion.d/cosign
+fi
+
+
+if [[ $(uname -s) == "Linux" ]]; then
+    alias xpaste="xclip -sel col -o"
+    alias xcopy="xclip -sel col"
+    alias temperature="sensors|grep '^Core.*?°C' -P"
+fi
+
+alias diff='diff --color=always'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias grep='grep --color=auto'
+alias l='ls -CF'
+alias la='ls -A'
+alias ll='ls -alF'
+alias ls='ls --color=auto'
+
+
+alias k='kubectl'
+alias kall='kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --no-headers --show-kind --ignore-not-found  -n '
+alias ks='kubectl -n kube-system '
+alias kg='kubectl -n garden '
+alias kchroot="kubectl exec -it -f $HOME/pr-pod.yaml -- chroot /host"
+alias kctx="kubectx"
+alias kns="kubens"
+alias цд="cd"
+alias лс="ls"
+alias лл="ll"
+alias пвд="pwd"
+alias gk='_gardener_kconfig'
+alias diff='diff --color=always'
+alias watch='watch -d -c '
+alias cds="cd $GOPATH/src/"
+alias cdg="cd $GOPATH/src/github.com/gardener/"
+alias cdgg="cd $GOPATH/src/github.com/gardener/gardener"
+alias cdgl="cd $HOME/Documents/git/gardenlinux/gardenlinux/"
+alias weather="curl wttr.in"
+
+complete -o default -F __start_kubectl k
+complete -o default -F __start_kubectl ks
+complete -o default -F __start_kubectl kg
+complete -o default -F __start_gardenctl g
+complete -C '/usr/local/bin/aws_completer' aws
+complete -C /usr/local/bin/aliyun aliyun
+
+test -s $HOME/.completion.d/kubectl && source $HOME/.completion.d/kubectl
+test -s $HOME/.completion.d/helm && source $HOME/.completion.d/helm
+test -s $HOME/.completion.d/kind && source $HOME/.completion.d/kind && compdef _kind kind
+test -s $HOME/.completion.d/cosign && source $HOME/.completion.d/cosign
+
+
+function kconfig {
+    export KUBECONFIG=$(readlink -f $1)
+}
+
+
+
+
+# credits for the jwks token decoding: mvladev
+
+decode_base64_url() {
+  local len=$((${#1} % 4))
+  local result="$1"
+  if [ $len -eq 2 ]; then result="$1"'=='
+  elif [ $len -eq 3 ]; then result="$1"'='
+  fi
+  echo "$result" | tr '_-' '/+' | base64 -d
+}
+decode_jose(){
+   decode_base64_url $(echo -n $2 | cut -d "." -f $1) | jq .
+}
+decode_jwt_part(){
+   decode_jose $1 $2 | jq 'if .iat then (.iatStr = (.iat|todate)) else . end | if .exp then (.expStr = (.exp|todate)) else . end | if .nbf then (.nbfStr = (.nbf|todate)) else . end'
+}
+decode_jwt(){
+   decode_jwt_part 1 $1
+   decode_jwt_part 2 $1
+}
+# Decode JWT header
+alias jwth="decode_jwt_part 1"
+# Decode JWT Payload
+alias jwtp="decode_jwt_part 2"
+# Decode JWT header and payload
+alias jwthp="decode_jwt"
+alias kjwthp="show_kubectl_id_token"
+function show_kubectl_id_token {
+   jwthp $(kubectl config view --minify -o jsonpath="{.users[0].user.auth-provider.config.id-token}")
+}
+
+
+if [[ $(uname -s) == "Darwin" ]]; then
+    # Use GNU tools
+    export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
+    export PATH=/usr/local/opt/gnu-sed/libexec/gnubin:$PATH
+    export PATH=/usr/local/opt/gnu-tar/libexec/gnubin:$PATH
+    export PATH=/usr/local/opt/grep/libexec/gnubin:$PATH
+fi
