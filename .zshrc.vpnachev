@@ -52,40 +52,39 @@ function _enable_kubectx_prompt() {
 }
 ## powerline END
 
-mkdir -p $HOME/.completion.d
+_completion_dir=$HOME/.completion.d/zsh
+mkdir -p ${_completion_dir}
 
-KUBECTL_VERSION=$(cat $HOME/.completion.d/kubectl.version)
-HELM_VERSION=$(cat $HOME/.completion.d/helm.version)
-KIND_VERSION=$(cat $HOME/.completion.d/kind.version)
-COSIGN_VERSION=$(cat $HOME/.completion.d/cosign.version)
+KUBECTL_VERSION=$(cat ${_completion_dir}/kubectl.version 2>/dev/null)
+HELM_VERSION=$(cat ${_completion_dir}/helm.version 2>/dev/null)
+KIND_VERSION=$(cat ${_completion_dir}/kind.version 2>/dev/null)
+COSIGN_VERSION=$(cat ${_completion_dir}/cosign.version 2>/dev/null)
+
 KUBECTL_V=$(kubectl version --client -o json | jq .clientVersion.gitVersion -r)
 HELM_V=$(helm version --client --short | grep -o "v[0-9].*[0-9]")
 KIND_V=$(kind version -q)
 COSIGN_V=$(cosign version --json 2>&1 | jq .gitVersion -cr)
-if [[ x${KUBECTL_VERSION}x != x${KUBECTL_V}x ]]
-then
-    echo -n $KUBECTL_V > $HOME/.completion.d/kubectl.version
-    kubectl completion zsh >$HOME/.completion.d/kubectl
+
+if [[ x${KUBECTL_VERSION}x != x${KUBECTL_V}x ]]; then
+    echo -n $KUBECTL_V > ${_completion_dir}/kubectl.version
+    kubectl completion zsh >${_completion_dir}/kubectl
 fi
 
 
-if [[ x${HELM_VERSION}x != x${HELM_V}x ]]
-then
-    echo -n $HELM_V > $HOME/.completion.d/helm.version
-    helm completion zsh >$HOME/.completion.d/helm
+if [[ x${HELM_VERSION}x != x${HELM_V}x ]]; then
+    echo -n $HELM_V > ${_completion_dir}/helm.version
+    helm completion zsh >${_completion_dir}/helm
 fi
 
 
-if [[ x${KIND_VERSION}x != x${KIND_V}x ]]
-then
-    echo -n $KIND_V > $HOME/.completion.d/kind.version
-    kind completion zsh >$HOME/.completion.d/kind
+if [[ x${KIND_VERSION}x != x${KIND_V}x ]]; then
+    echo -n $KIND_V > ${_completion_dir}/kind.version
+    kind completion zsh >${_completion_dir}/kind
 fi
 
-if [[ x${COSIGN_VERSION}x != x${COSIGN_V}x ]]
-then
-    echo -n $COSIGN_V > $HOME/.completion.d/cosign.version
-    cosign completion zsh >$HOME/.completion.d/cosign
+if [[ x${COSIGN_VERSION}x != x${COSIGN_V}x ]]; then
+    echo -n $COSIGN_V > ${_completion_dir}/cosign.version
+    cosign completion zsh >${_completion_dir}/cosign
 fi
 
 
@@ -132,10 +131,10 @@ complete -o default -F __start_gardenctl g
 complete -C '/usr/local/bin/aws_completer' aws
 complete -C /usr/local/bin/aliyun aliyun
 
-test -s $HOME/.completion.d/kubectl && source $HOME/.completion.d/kubectl
-test -s $HOME/.completion.d/helm && source $HOME/.completion.d/helm
-test -s $HOME/.completion.d/kind && source $HOME/.completion.d/kind && compdef _kind kind
-test -s $HOME/.completion.d/cosign && source $HOME/.completion.d/cosign
+test -s ${_completion_dir}/kubectl  && source ${_completion_dir}/kubectl
+test -s ${_completion_dir}/helm     && source ${_completion_dir}/helm
+test -s ${_completion_dir}/kind     && source ${_completion_dir}/kind && compdef _kind kind
+test -s ${_completion_dir}/cosign   && source ${_completion_dir}/cosign
 
 
 function kconfig {
