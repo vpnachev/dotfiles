@@ -18,12 +18,18 @@
 [pull]
     rebase = true
 [gpg]
-    program = gpg
+    program = gpg2
 [commit]
     gpgSign = true
 [push]
     default = simple
 
+[credential "https://github.com"]
+    helper = /usr/share/doc/git/contrib/credential/gnome-keyring/git-credential-gnome-keyring
+[credential "<host-2>"]
+    helper = /usr/share/doc/git/contrib/credential/gnome-keyring/git-credential-gnome-keyring
+[credential "<host-3>"]
+    helper = /usr/share/doc/git/contrib/credential/gnome-keyring/git-credential-gnome-keyring
 
 #[hub]
 #	protocol = git
