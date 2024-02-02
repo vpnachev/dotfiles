@@ -3,6 +3,7 @@ if [ -z $GOPATH ]; then
     export GOPATH="${HOME}/go"
 fi
 export PATH="/sbin:/usr/sbin:/usr/local/sbin:${PATH}:${GOPATH}/bin:${GOROOT}/bin"
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export Videos="/var/lib/Videos"
 export DOCKER_BUILDKIT=1
 
@@ -27,7 +28,7 @@ function powerline_precmd() {
     fi
     export KUBE_PS_NAMESPACE
 
-    PS1="$(powerline-shell --shell zsh $?)"
+    PS1="$(powerline-shell --shell zsh $ext_code)"
 }
 
 function install_powerline_precmd() {
@@ -102,6 +103,7 @@ alias l='ls -CF'
 alias la='ls -A'
 alias ll='ls -alF'
 alias ls='ls --color=auto'
+alias less='less -R'
 
 
 alias k='kubectl'
@@ -117,6 +119,7 @@ alias лл="ll"
 alias пвд="pwd"
 alias gk='_gardener_kconfig'
 alias diff='diff --color=always'
+alias tree='tree -C'
 alias watch='watch -d -c '
 alias cds="cd $GOPATH/src/"
 alias cdg="cd $GOPATH/src/github.com/gardener/"
@@ -178,11 +181,18 @@ function show_kubectl_id_token {
 
 if [[ $(uname -s) == "Darwin" ]]; then
     # Use GNU tools
-    export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
-    export PATH=/usr/local/opt/gnu-sed/libexec/gnubin:$PATH
-    export PATH=/usr/local/opt/gnu-tar/libexec/gnubin:$PATH
-    export PATH=/usr/local/opt/grep/libexec/gnubin:$PATH
+    export PATH=$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH
+    export PATH=$(brew --prefix)/opt/gnu-sed/libexec/gnubin:$PATH
+    export PATH=$(brew --prefix)/opt/gnu-tar/libexec/gnubin:$PATH
+    export PATH=$(brew --prefix)/opt/grep/libexec/gnubin:$PATH
+    export PATH=$(brew --prefix)/opt/gzip/bin:$PATH
+    export PATH=$(brew --prefix)/opt/diffutils/bin:$PATH
 
     # Let git signing work
     export GPG_TTY=$(tty)
+    alias droot='docker run -it --rm --privileged --pid=host'
 fi
+
+# Use Bash style word separators
+autoload -U select-word-style
+select-word-style bash

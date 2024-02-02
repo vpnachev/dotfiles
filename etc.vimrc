@@ -479,3 +479,5 @@ if has('langmap') && exists('+langremap')
   " compatible).
   set nolangremap
 endif
+
+set mmp=5000
