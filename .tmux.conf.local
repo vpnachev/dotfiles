@@ -459,5 +459,5 @@ unbind C-c
 bind -r p previous-window   # select previous window
 bind -r n next-window       # select next window
 set -s escape-time 5
-bind -r v new-session -s vpn
+# bind -r v new-session -s vpn # Was used on Linux notebooks to run the vpn client in separate session
 set -g history-limit 50000                 # boost history
