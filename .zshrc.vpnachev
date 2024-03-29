@@ -126,6 +126,7 @@ alias cdg="cd $GOPATH/src/github.com/gardener/"
 alias cdgg="cd $GOPATH/src/github.com/gardener/gardener"
 alias cdgl="cd $HOME/Documents/git/gardenlinux/gardenlinux/"
 alias weather="curl wttr.in"
+alias uuidgen='uuidgen | tr "[:upper:]" "[:lower:]"'
 
 complete -o default -F __start_kubectl k
 complete -o default -F __start_kubectl ks
@@ -191,6 +192,9 @@ if [[ $(uname -s) == "Darwin" ]]; then
     # Let git signing work
     export GPG_TTY=$(tty)
     alias droot='docker run -it --rm --privileged --pid=host'
+    if [[ $(uname -m) == "x86_64" ]]; then
+        export CGO_LDFLAGS="-ld_classic $(go env CGO_LDFLAGS)"
+    fi
 fi
 
 # Use Bash style word separators
