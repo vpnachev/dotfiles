@@ -1,11 +1,12 @@
 [user]
-    name = <User Name>
-    email = <mail>
+	name = vpnachev
+	email = <mail>
 	signingkey = <gpg-sign-key-id>
 [http]
     sslVerify = false
 [alias]
     logtree = log  --decorate --graph --all --color --oneline
+    logline = log  --decorate --graph --color --oneline
     logo = log --oneline  --decorate --graph --color
     afetch = fetch --all --verbose --prune
     aafetch = fetch --all --verbose --prune --recurse-submodules=on-demand --tags
@@ -17,12 +18,14 @@
     editor = vim
 [pull]
     rebase = true
-[gpg]
-    program = gpg
 [commit]
-    gpgSign = true
+	gpgsign = true
 [push]
     default = simple
+[init]
+	defaultBranch = main
+[diff]
+	wsErrorHighlight = all
 
 
 #[hub]
